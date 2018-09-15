@@ -6,19 +6,34 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import lti.quiz.bean.ForgetBean;
 import lti.quiz.bean.LoginBean;
 import lti.quiz.bean.RegisterBean;
-import oracle.jdbc.OracleDriver;
+//import oracle.jdbc.OracleDriver;
 
 public class UserDaoImpl implements UserDao {
 
 	private Connection getConnection() throws SQLException {
-		DriverManager.registerDriver(new OracleDriver());
+		/*DriverManager.registerDriver(new OracleDriver());
 		String url = "jdbc:oracle:thin:@localhost:1521:xe";
-		Connection conn = DriverManager.getConnection(url, "sid", "sid123");
-		return conn;
+		Connection conn = DriverManager.getConnection(url, "sid", "sid123");*/
+		try {
+			Context initContext = new InitialContext();
+			Context envContext  = (Context)initContext.lookup("java:/comp/env");
+			DataSource ds = (DataSource)envContext.lookup("jdbc/myoracle");
+			Connection conn = ds.getConnection();
+			return conn;
+		} catch (NamingException e) {
+			throw new SQLException(e.getMessage());
+		}
+		
 	}
+	
 
 	@Override
 	public RegisterBean authenticate(LoginBean login) {
